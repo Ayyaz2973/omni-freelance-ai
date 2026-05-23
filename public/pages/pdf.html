@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF Tools - OmniFreelance AI</title>
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <h1>OmniFreelance AI</h1>
+    <p>Local AI Freelancing Assistant</p>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="/"><span class="icon">&#127968;</span> Dashboard</a>
+    <a href="/pages/chat.html"><span class="icon">&#128172;</span> AI Chat</a>
+    <a href="/pages/proposal.html"><span class="icon">&#128221;</span> Proposal Generator</a>
+    <a href="/pages/seo.html"><span class="icon">&#128200;</span> SEO Writer</a>
+    <a href="/pages/code.html"><span class="icon">&#128187;</span> Code Assistant</a>
+    <a href="/pages/pdf.html" class="active"><span class="icon">&#128196;</span> PDF Tools</a>
+    <a href="/pages/voice.html"><span class="icon">&#127908;</span> Voice AI</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="status-indicator">
+      <span class="status-dot" id="statusDot"></span>
+      <span id="statusText">Checking Ollama...</span>
+    </div>
+  </div>
+</aside>
+
+<div class="main-content">
+  <nav class="navbar">
+    <button class="menu-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">&#9776;</button>
+    <h2>PDF Tools</h2>
+    <select class="model-select" id="modelSelect">
+      <option value="llama3">llama3</option>
+      <option value="mistral">mistral</option>
+    </select>
+  </nav>
+
+  <div class="page-content">
+    <div class="tool-container">
+      <div class="tool-header">
+        <h2>&#128196; PDF Tools</h2>
+        <p>Extract text, summarize, and ask questions from PDF and DOCX files.</p>
+      </div>
+
+      <div class="tab-buttons">
+        <button class="tab-btn active" onclick="setPdfMode('extract', this)">Extract Text</button>
+        <button class="tab-btn" onclick="setPdfMode('summarize', this)">Summarize</button>
+        <button class="tab-btn" onclick="setPdfMode('ask', this)">Ask Question</button>
+      </div>
+
+      <div class="file-upload" onclick="document.getElementById('fileInput').click()">
+        <div class="upload-icon">&#128194;</div>
+        <p>Click to upload PDF or DOCX file</p>
+        <p style="font-size: 0.75rem; margin-top: 4px;">Max size: 10MB</p>
+        <input type="file" id="fileInput" accept=".pdf,.docx,.doc,.txt" onchange="handleFileSelect(this)">
+        <div class="file-name" id="fileName"></div>
+      </div>
+
+      <div class="form-group" id="questionGroup" style="display: none;">
+        <label for="pdfQuestion">Your Question</label>
+        <textarea id="pdfQuestion" placeholder="Ask a question about the document..." rows="3"></textarea>
+      </div>
+
+      <div class="btn-group">
+        <button class="btn btn-primary" id="processBtn" onclick="processPDF()">&#128196; Process File</button>
+        <button class="btn btn-secondary" onclick="clearOutput()">Clear</button>
+      </div>
+
+      <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <span>Processing document...</span>
+      </div>
+
+      <div class="output-container">
+        <div class="output-header">
+          <h4>Result</h4>
+          <button class="btn btn-secondary" onclick="copyOutput()" style="padding: 6px 12px; font-size: 0.8rem;">Copy</button>
+        </div>
+        <div class="output-body empty" id="output">Upload a file to get started...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="../app.js"></script>
+<script>
+let pdfMode = 'extract';
+let selectedFile = null;
+
+function setPdfMode(mode, btn) {
+  pdfMode = mode;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('questionGroup').style.display = mode === 'ask' ? 'block' : 'none';
+}
+
+function handleFileSelect(input) {
+  if (input.files.length > 0) {
+    selectedFile = input.files[0];
+    document.getElementById('fileName').textContent = selectedFile.name;
+  }
+}
+
+async function processPDF() {
+  if (!selectedFile) return showToast('Please select a file first', 'error');
+
+  showLoading(true);
+  document.getElementById('processBtn').disabled = true;
+
+  const formData = new FormData();
+  formData.append('file', selectedFile);
+
+  let endpoint = '/api/pdf/' + pdfMode;
+
+  if (pdfMode === 'ask') {
+    const question = document.getElementById('pdfQuestion').value.trim();
+    if (!question) {
+      showLoading(false);
+      document.getElementById('processBtn').disabled = false;
+      return showToast('Please enter a question', 'error');
+    }
+    formData.append('question', question);
+  }
+
+  try {
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      body: formData,
+    });
+    const data = await res.json();
+    const result = data.data || data;
+    setOutput(result.text || result.summary || result.answer || JSON.stringify(result, null, 2));
+    showToast('Document processed!', 'success');
+  } catch (e) {
+    setOutput('Error: ' + e.message);
+    showToast('Failed to process document', 'error');
+  } finally {
+    showLoading(false);
+    document.getElementById('processBtn').disabled = false;
+  }
+}
+</script>
+</body>
+</html>
