@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voice AI - OmniFreelance AI</title>
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <h1>OmniFreelance AI</h1>
+    <p>Local AI Freelancing Assistant</p>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="/"><span class="icon">&#127968;</span> Dashboard</a>
+    <a href="/pages/chat.html"><span class="icon">&#128172;</span> AI Chat</a>
+    <a href="/pages/proposal.html"><span class="icon">&#128221;</span> Proposal Generator</a>
+    <a href="/pages/seo.html"><span class="icon">&#128200;</span> SEO Writer</a>
+    <a href="/pages/code.html"><span class="icon">&#128187;</span> Code Assistant</a>
+    <a href="/pages/summarize.html"><span class="icon">&#128203;</span> Summarizer</a>
+    <a href="/pages/email.html"><span class="icon">&#128232;</span> Email Generator</a>
+    <a href="/pages/translate.html"><span class="icon">&#127760;</span> Translator</a>
+    <a href="/pages/pdf.html"><span class="icon">&#128196;</span> PDF Tools</a>
+    <a href="/pages/voice.html" class="active"><span class="icon">&#127908;</span> Voice AI</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="status-indicator">
+      <span class="status-dot" id="statusDot"></span>
+      <span id="statusText">Checking Ollama...</span>
+    </div>
+  </div>
+</aside>
+
+<div class="main-content">
+  <nav class="navbar">
+    <button class="menu-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">&#9776;</button>
+    <h2>Voice AI</h2>
+    <select class="model-select" id="modelSelect">
+      <option value="llama3">llama3</option>
+      <option value="mistral">mistral</option>
+    </select>
+  </nav>
+
+  <div class="page-content">
+    <div class="tool-container">
+      <div class="tool-header">
+        <h2>&#127908; Voice AI</h2>
+        <p>Speech-to-text, text-to-speech, and AI voice assistant.</p>
+      </div>
+
+      <div class="tab-buttons">
+        <button class="tab-btn active" onclick="setVoiceMode('respond', this)">Voice Assistant</button>
+        <button class="tab-btn" onclick="setVoiceMode('summarize', this)">Summarize Speech</button>
+        <button class="tab-btn" onclick="setVoiceMode('translate', this)">Translate Speech</button>
+      </div>
+
+      <div class="form-group">
+        <label>Speech-to-Text</label>
+        <div class="btn-group" style="margin-bottom: 12px;">
+          <button class="btn btn-secondary" id="recordBtn" onclick="toggleRecording()">&#127908; Start Recording</button>
+          <button class="btn btn-secondary" id="speakBtn" onclick="speakOutput()">&#128266; Read Aloud</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="voiceInput">Text Input (or use microphone above)</label>
+        <textarea id="voiceInput" placeholder="Speak or type your message here..." rows="4"></textarea>
+      </div>
+
+      <div class="btn-group">
+        <button class="btn btn-primary" id="processBtn" onclick="processVoice()">&#9658; Process</button>
+        <button class="btn btn-secondary" onclick="clearOutput()">Clear</button>
+      </div>
+
+      <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <span>Processing...</span>
+      </div>
+
+      <div class="output-container">
+        <div class="output-header">
+          <h4>Response</h4>
+          <div>
+            <button class="btn btn-secondary" onclick="speakOutput()" style="padding: 6px 12px; font-size: 0.8rem;">&#128266; Speak</button>
+            <button class="btn btn-secondary" onclick="copyOutput()" style="padding: 6px 12px; font-size: 0.8rem;">Copy</button>
+          </div>
+        </div>
+        <div class="output-body empty" id="output">Response will appear here...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="../app.js"></script>
+<script>
+let voiceMode = 'respond';
+let isRecording = false;
+let recognition = null;
+
+function setVoiceMode(mode, btn) {
+  voiceMode = mode;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function toggleRecording() {
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    return showToast('Speech recognition not supported in this browser', 'error');
+  }
+
+  if (isRecording) {
+    recognition.stop();
+    isRecording = false;
+    document.getElementById('recordBtn').textContent = '🎤 Start Recording';
+    return;
+  }
+
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SpeechRecognition();
+  recognition.continuous = true;
+  recognition.interimResults = true;
+  recognition.lang = 'en-US';
+
+  recognition.onresult = function(event) {
+    let transcript = '';
+    for (let i = 0; i < event.results.length; i++) {
+      transcript += event.results[i][0].transcript;
+    }
+    document.getElementById('voiceInput').value = transcript;
+  };
+
+  recognition.onerror = function(event) {
+    showToast('Speech recognition error: ' + event.error, 'error');
+    isRecording = false;
+    document.getElementById('recordBtn').textContent = '🎤 Start Recording';
+  };
+
+  recognition.start();
+  isRecording = true;
+  document.getElementById('recordBtn').textContent = '⏹ Stop Recording';
+  showToast('Listening...', 'success');
+}
+
+function speakOutput() {
+  const output = document.getElementById('output').textContent;
+  if (!output || output === 'Response will appear here...') return;
+
+  const utterance = new SpeechSynthesisUtterance(output);
+  utterance.rate = 0.9;
+  speechSynthesis.speak(utterance);
+}
+
+async function processVoice() {
+  const text = document.getElementById('voiceInput').value.trim();
+  if (!text) return showToast('Please enter or speak some text', 'error');
+
+  showLoading(true);
+  document.getElementById('processBtn').disabled = true;
+
+  try {
+    const res = await fetch('/api/voice', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, action: voiceMode }),
+    });
+    const data = await res.json();
+    setOutput(data.data ? data.data.response : data.response || 'No response');
+    showToast('Processed!', 'success');
+  } catch (e) {
+    setOutput('Error: ' + e.message);
+    showToast('Failed to process', 'error');
+  } finally {
+    showLoading(false);
+    document.getElementById('processBtn').disabled = false;
+  }
+}
+</script>
+</body>
+</html>

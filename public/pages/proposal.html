@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Proposal Generator - OmniFreelance AI</title>
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <h1>OmniFreelance AI</h1>
+    <p>Local AI Freelancing Assistant</p>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="/"><span class="icon">&#127968;</span> Dashboard</a>
+    <a href="/pages/chat.html"><span class="icon">&#128172;</span> AI Chat</a>
+    <a href="/pages/proposal.html" class="active"><span class="icon">&#128221;</span> Proposal Generator</a>
+    <a href="/pages/seo.html"><span class="icon">&#128200;</span> SEO Writer</a>
+    <a href="/pages/code.html"><span class="icon">&#128187;</span> Code Assistant</a>
+    <a href="/pages/summarize.html"><span class="icon">&#128203;</span> Summarizer</a>
+    <a href="/pages/email.html"><span class="icon">&#128232;</span> Email Generator</a>
+    <a href="/pages/translate.html"><span class="icon">&#127760;</span> Translator</a>
+    <a href="/pages/pdf.html"><span class="icon">&#128196;</span> PDF Tools</a>
+    <a href="/pages/voice.html"><span class="icon">&#127908;</span> Voice AI</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="status-indicator">
+      <span class="status-dot" id="statusDot"></span>
+      <span id="statusText">Checking Ollama...</span>
+    </div>
+  </div>
+</aside>
+
+<div class="main-content">
+  <nav class="navbar">
+    <button class="menu-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">&#9776;</button>
+    <h2>Proposal Generator</h2>
+    <select class="model-select" id="modelSelect">
+      <option value="llama3">llama3</option>
+      <option value="mistral">mistral</option>
+    </select>
+  </nav>
+
+  <div class="page-content">
+    <div class="tool-container">
+      <div class="tool-header">
+        <h2>&#128221; Proposal Generator</h2>
+        <p>Generate professional freelancing proposals for any platform.</p>
+      </div>
+
+      <div class="tab-buttons">
+        <button class="tab-btn active" onclick="setPlatform('Upwork', this)">Upwork</button>
+        <button class="tab-btn" onclick="setPlatform('Fiverr', this)">Fiverr</button>
+        <button class="tab-btn" onclick="setPlatform('Freelancer', this)">Freelancer</button>
+        <button class="tab-btn" onclick="setPlatform('Cover Letter', this)">Cover Letter</button>
+      </div>
+
+      <div class="form-group">
+        <label for="jobTitle">Job Title</label>
+        <input type="text" id="jobTitle" placeholder="e.g., Full Stack Web Developer Needed">
+      </div>
+
+      <div class="form-group">
+        <label for="jobDesc">Job Description</label>
+        <textarea id="jobDesc" placeholder="Paste the job description here..." rows="6"></textarea>
+      </div>
+
+      <div class="btn-group">
+        <button class="btn btn-primary" id="genBtn" onclick="generateProposal()">&#9998; Generate Proposal</button>
+        <button class="btn btn-secondary" onclick="clearOutput()">Clear</button>
+      </div>
+
+      <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <span>Generating proposal...</span>
+      </div>
+
+      <div class="output-container">
+        <div class="output-header">
+          <h4>Generated Proposal</h4>
+          <button class="btn btn-secondary" onclick="copyOutput()" style="padding: 6px 12px; font-size: 0.8rem;">Copy</button>
+        </div>
+        <div class="output-body empty" id="output">Your proposal will appear here...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="../app.js"></script>
+<script>
+let currentPlatform = 'Upwork';
+
+function setPlatform(platform, btn) {
+  currentPlatform = platform;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+async function generateProposal() {
+  const jobTitle = document.getElementById('jobTitle').value.trim();
+  const description = document.getElementById('jobDesc').value.trim();
+
+  if (!jobTitle || !description) return showToast('Please fill in all fields', 'error');
+
+  showLoading(true);
+  document.getElementById('genBtn').disabled = true;
+
+  try {
+    const res = await fetch('/api/proposal', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ jobTitle, description, platform: currentPlatform }),
+    });
+    const data = await res.json();
+    setOutput(data.data ? data.data.proposal : data.proposal || 'No response');
+    showToast('Proposal generated!', 'success');
+  } catch (e) {
+    setOutput('Error: ' + e.message);
+    showToast('Failed to generate proposal', 'error');
+  } finally {
+    showLoading(false);
+    document.getElementById('genBtn').disabled = false;
+  }
+}
+</script>
+</body>
+</html>

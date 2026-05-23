@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OmniFreelance AI - Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <h1>OmniFreelance AI</h1>
+    <p>Local AI Freelancing Assistant</p>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="/" class="active">
+      <span class="icon">&#127968;</span>
+      Dashboard
+    </a>
+    <a href="/pages/chat.html">
+      <span class="icon">&#128172;</span>
+      AI Chat
+    </a>
+    <a href="/pages/proposal.html">
+      <span class="icon">&#128221;</span>
+      Proposal Generator
+    </a>
+    <a href="/pages/seo.html">
+      <span class="icon">&#128200;</span>
+      SEO Writer
+    </a>
+    <a href="/pages/code.html">
+      <span class="icon">&#128187;</span>
+      Code Assistant
+    </a>
+    <a href="/pages/summarize.html">
+      <span class="icon">&#128203;</span>
+      Summarizer
+    </a>
+    <a href="/pages/email.html">
+      <span class="icon">&#128232;</span>
+      Email Generator
+    </a>
+    <a href="/pages/translate.html">
+      <span class="icon">&#127760;</span>
+      Translator
+    </a>
+    <a href="/pages/pdf.html">
+      <span class="icon">&#128196;</span>
+      PDF Tools
+    </a>
+    <a href="/pages/voice.html">
+      <span class="icon">&#127908;</span>
+      Voice AI
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="status-indicator">
+      <span class="status-dot" id="statusDot"></span>
+      <span id="statusText">Checking Ollama...</span>
+    </div>
+  </div>
+</aside>
+
+<div class="main-content">
+  <nav class="navbar">
+    <button class="menu-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">&#9776;</button>
+    <h2>Dashboard</h2>
+    <select class="model-select" id="modelSelect">
+      <option value="llama3">llama3</option>
+      <option value="mistral">mistral</option>
+      <option value="deepseek-coder">deepseek-coder</option>
+    </select>
+  </nav>
+
+  <div class="page-content">
+    <div class="tool-header">
+      <h2>Welcome to OmniFreelance AI</h2>
+      <p>Your complete local AI freelancing assistant. Choose a tool to get started.</p>
+    </div>
+
+    <div class="dashboard-grid">
+      <div class="card" onclick="window.location.href='/pages/chat.html'">
+        <div class="card-icon">&#128172;</div>
+        <h3>AI Chat</h3>
+        <p>Multi-model chat with memory. Supports English and Urdu with markdown rendering.</p>
+      </div>
+
+      <div class="card" onclick="window.location.href='/pages/proposal.html'">
+        <div class="card-icon">&#128221;</div>
+        <h3>Proposal Generator</h3>
+        <p>Generate professional proposals for Fiverr, Upwork, cover letters, and client replies.</p>
+      </div>
+
+      <div class="card" onclick="window.location.href='/pages/seo.html'">
+        <div class="card-icon">&#128200;</div>
+        <h3>SEO Content Writer</h3>
+        <p>Generate SEO blog posts, meta descriptions, titles, keywords, and structured headings.</p>
+      </div>
+
+      <div class="card" onclick="window.location.href='/pages/code.html'">
+        <div class="card-icon">&#128187;</div>
+        <h3>Code Assistant</h3>
+        <p>Generate HTML, CSS, JavaScript, React, Next.js code, fix bugs, and create APIs.</p>
+      </div>
+
+      <div class="card" onclick="window.location.href='/pages/pdf.html'">
+        <div class="card-icon">&#128196;</div>
+        <h3>PDF Tools</h3>
+        <p>Extract text, summarize documents, and ask questions from PDF and DOCX files.</p>
+      </div>
+
+      <div class="card" onclick="window.location.href='/pages/voice.html'">
+        <div class="card-icon">&#127908;</div>
+        <h3>Voice AI</h3>
+        <p>Speech-to-text, text-to-speech, and AI voice assistant powered by local models.</p>
+      </div>
+
+      <div class="card" onclick="window.location.href='/pages/summarize.html'">
+        <div class="card-icon">&#128203;</div>
+        <h3>Text Summarizer</h3>
+        <p>Summarize long texts, articles, and documents into clear, concise summaries.</p>
+      </div>
+
+      <div class="card" onclick="window.location.href='/pages/email.html'">
+        <div class="card-icon">&#128232;</div>
+        <h3>Email Generator</h3>
+        <p>Create professional emails, cold outreach, client responses, and complaint emails.</p>
+      </div>
+
+      <div class="card" onclick="window.location.href='/pages/translate.html'">
+        <div class="card-icon">&#127760;</div>
+        <h3>Translator</h3>
+        <p>Translate between English, Urdu, Arabic, and Roman Urdu with context preservation.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
