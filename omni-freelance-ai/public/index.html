@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OmniFreelance AI</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+  <h1>OmniFreelance AI</h1>
+
+  <div class="tabs">
+    <button onclick="setMode('chat')">AI Chat</button>
+    <button onclick="setMode('proposal')">Proposal</button>
+    <button onclick="setMode('seo')">SEO</button>
+    <button onclick="setMode('code')">Code</button>
+  </div>
+
+  <textarea id="input" placeholder="Type here..."></textarea>
+
+  <button class="main-btn" onclick="sendRequest()">
+    Generate
+  </button>
+
+  <pre id="output"></pre>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
