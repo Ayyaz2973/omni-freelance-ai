@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SEO Writer - OmniFreelance AI</title>
+  <title>Text Summarizer - OmniFreelance AI</title>
   <link rel="stylesheet" href="../style.css">
 </head>
 <body>
@@ -17,9 +17,9 @@
     <a href="/"><span class="icon">&#127968;</span> Dashboard</a>
     <a href="/pages/chat.html"><span class="icon">&#128172;</span> AI Chat</a>
     <a href="/pages/proposal.html"><span class="icon">&#128221;</span> Proposal Generator</a>
-    <a href="/pages/seo.html" class="active"><span class="icon">&#128200;</span> SEO Writer</a>
+    <a href="/pages/seo.html"><span class="icon">&#128200;</span> SEO Writer</a>
     <a href="/pages/code.html"><span class="icon">&#128187;</span> Code Assistant</a>
-    <a href="/pages/summarize.html"><span class="icon">&#128203;</span> Summarizer</a>
+    <a href="/pages/summarize.html" class="active"><span class="icon">&#128203;</span> Summarizer</a>
     <a href="/pages/email.html"><span class="icon">&#128232;</span> Email Generator</a>
     <a href="/pages/translate.html"><span class="icon">&#127760;</span> Translator</a>
     <a href="/pages/pdf.html"><span class="icon">&#128196;</span> PDF Tools</a>
@@ -36,7 +36,7 @@
 <div class="main-content">
   <nav class="navbar">
     <button class="menu-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">&#9776;</button>
-    <h2>SEO Content Writer</h2>
+    <h2>Text Summarizer</h2>
     <select class="model-select" id="modelSelect">
       <option value="llama3">llama3</option>
       <option value="mistral">mistral</option>
@@ -46,36 +46,38 @@
   <div class="page-content">
     <div class="tool-container">
       <div class="tool-header">
-        <h2>&#128200; SEO Content Writer</h2>
-        <p>Generate SEO optimized blog posts, meta descriptions, and more.</p>
+        <h2>&#128203; Text Summarizer</h2>
+        <p>Summarize long texts, articles, and documents into clear, concise summaries.</p>
+      </div>
+
+      <div class="tab-buttons">
+        <button class="tab-btn active" onclick="setStyle('concise', this)">Concise</button>
+        <button class="tab-btn" onclick="setStyle('detailed', this)">Detailed</button>
+        <button class="tab-btn" onclick="setStyle('bullet-points', this)">Bullet Points</button>
+        <button class="tab-btn" onclick="setStyle('executive', this)">Executive Summary</button>
       </div>
 
       <div class="form-group">
-        <label for="seoTopic">Topic</label>
-        <input type="text" id="seoTopic" placeholder="e.g., Best AI Tools for Freelancers in 2024">
-      </div>
-
-      <div class="form-group">
-        <label for="seoKeywords">Target Keywords (optional, comma separated)</label>
-        <input type="text" id="seoKeywords" placeholder="e.g., AI tools, freelancing, productivity">
+        <label for="textInput">Text to Summarize</label>
+        <textarea id="textInput" placeholder="Paste the text you want to summarize here..." rows="8"></textarea>
       </div>
 
       <div class="btn-group">
-        <button class="btn btn-primary" id="genBtn" onclick="generateSEO()">&#128200; Generate SEO Content</button>
+        <button class="btn btn-primary" id="genBtn" onclick="summarizeText()">&#128203; Summarize</button>
         <button class="btn btn-secondary" onclick="clearOutput()">Clear</button>
       </div>
 
       <div class="loading" id="loading">
         <div class="spinner"></div>
-        <span>Generating SEO content...</span>
+        <span>Summarizing text...</span>
       </div>
 
       <div class="output-container">
         <div class="output-header">
-          <h4>SEO Content</h4>
+          <h4>Summary</h4>
           <button class="btn btn-secondary" onclick="copyOutput()" style="padding: 6px 12px; font-size: 0.8rem;">Copy</button>
         </div>
-        <div class="output-body empty" id="output">Your SEO content will appear here...</div>
+        <div class="output-body empty" id="output">Your summary will appear here...</div>
       </div>
     </div>
   </div>
@@ -85,27 +87,39 @@
 
 <script src="../app.js"></script>
 <script>
-async function generateSEO() {
-  const topic = document.getElementById('seoTopic').value.trim();
-  const keywords = document.getElementById('seoKeywords').value.trim();
+let currentStyle = 'concise';
 
-  if (!topic) return showToast('Please enter a topic', 'error');
+function setStyle(style, btn) {
+  currentStyle = style;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+async function summarizeText() {
+  const text = document.getElementById('textInput').value.trim();
+
+  if (!text) return showToast('Please enter text to summarize', 'error');
 
   showLoading(true);
   document.getElementById('genBtn').disabled = true;
 
   try {
-    const res = await fetch('/api/seo', {
+    const res = await fetch('/api/summarize', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ topic, keywords }),
+      body: JSON.stringify({ text, style: currentStyle }),
     });
     const data = await res.json();
-    setOutput(data.data ? data.data.seo : data.seo || 'No response');
-    showToast('SEO content generated!', 'success');
+    if (data.status === 'error') {
+      setOutput('Error: ' + (data.message || 'Unknown error'));
+      showToast(data.message || 'Request failed', 'error');
+    } else {
+      setOutput(data.data ? data.data.summary : data.summary || 'No response');
+      showToast('Text summarized!', 'success');
+    }
   } catch (e) {
     setOutput('Error: ' + e.message);
-    showToast('Failed to generate SEO content', 'error');
+    showToast('Failed to summarize text', 'error');
   } finally {
     showLoading(false);
     document.getElementById('genBtn').disabled = false;
