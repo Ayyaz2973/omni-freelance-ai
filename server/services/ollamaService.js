@@ -1,17 +1,27 @@
 const axios = require('axios');
 const config = require('../config/ollama');
 
-async function askOllama(prompt, model) {
+async function askOllama(prompt, model, opts = {}) {
   const selectedModel = model || config.defaultModel;
 
   try {
+    const payload = {
+      model: selectedModel,
+      prompt,
+      stream: false,
+    };
+
+    if (opts.system) {
+      payload.system = opts.system;
+    }
+
+    if (opts.temperature !== undefined) {
+      payload.options = { temperature: opts.temperature };
+    }
+
     const response = await axios.post(
       `${config.baseURL}${config.endpoints.generate}`,
-      {
-        model: selectedModel,
-        prompt,
-        stream: false,
-      },
+      payload,
       { timeout: 120000 }
     );
 

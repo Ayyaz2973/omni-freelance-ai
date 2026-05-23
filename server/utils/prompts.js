@@ -29,17 +29,14 @@ Include:
 `,
 
   code: ({ task, language }) => `
-You are an expert developer.
 ${language ? `Language/Framework: ${language}` : ''}
-
 Task:
 ${task}
 
-Provide complete, clean, well-commented code with:
-- Proper error handling
-- Best practices
-- Brief explanation of the approach
+Return ONLY the raw source code. No explanations, no introductory sentences, no markdown fences, no notes at the end. Output must be valid, runnable code only.
 `,
+
+  codeSystem: `You are a strict, silent code generator. Your output must contain ONLY valid source code. Do NOT include any introductory sentences, conversational chatter, markdown code fences, or notes. Do NOT explain your logic. Return only the raw code block with proper comments inside the code where needed.`,
 
   vibeCoder: ({ description, projectType, features }) => `
 You are an expert full-stack developer and app builder. Your job is to generate a COMPLETE, fully working project from a single prompt.

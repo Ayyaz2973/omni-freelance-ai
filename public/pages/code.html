@@ -81,6 +81,7 @@
         <div class="output-header">
           <h4>Generated Code</h4>
           <button class="btn btn-secondary" onclick="copyOutput()" style="padding: 6px 12px; font-size: 0.8rem;">Copy</button>
+          <button class="btn btn-secondary" onclick="downloadCode()" style="padding: 6px 12px; font-size: 0.8rem;">&#128229; Download</button>
         </div>
         <div class="output-body empty" id="output" style="font-family: 'Courier New', monospace; font-size: 0.85rem;">Your code will appear here...</div>
       </div>
@@ -98,6 +99,28 @@ function setLanguage(lang, btn) {
   currentLanguage = lang;
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
+}
+
+function downloadCode() {
+  const output = document.getElementById('output');
+  const code = output.innerText;
+  if (!code.trim() || code === 'Your code will appear here...') return showToast('No code to download yet', 'error');
+
+  const ext = currentLanguage === 'HTML/CSS' ? 'html'
+    : currentLanguage === 'Python' ? 'py'
+    : currentLanguage === 'React' || currentLanguage === 'Next.js' ? 'jsx'
+    : 'js';
+
+  const blob = new Blob([code], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `generated-code.${ext}`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('Code downloaded!', 'success');
 }
 
 async function generateCode() {
