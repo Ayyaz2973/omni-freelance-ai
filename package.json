@@ -1,4 +1,11 @@
 {
+  "name": "omni-freelance-ai",
+  "version": "1.0.0",
+  "main": "omni-freelance-ai/server/server.js",
+  "scripts": {
+    "start": "node omni-freelance-ai/server/server.js",
+    "dev": "nodemon omni-freelance-ai/server/server.js"
+  },
   "dependencies": {
     "axios": "^1.16.1",
     "cors": "^2.8.6",
