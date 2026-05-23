@@ -93,6 +93,7 @@ app.use('/api/chat', chatRoute);
 app.use('/api/proposal', proposalRoute);
 app.use('/api/seo', seoRoute);
 app.use('/api/code', codeRoute);
+app.use('/api/vibe-coder', vibeCoderRoute);
 app.use('/api/translate', translateRoute);
 app.use('/api/summarize', summarizeRoute);
 app.use('/api/pdf', pdfRoute);
@@ -123,6 +124,7 @@ app.listen(PORT, () => {
   console.log('  POST /api/proposal   - Proposal Generator');
   console.log('  POST /api/seo        - SEO Content Writer');
   console.log('  POST /api/code       - Code Assistant');
+  console.log('  POST /api/vibe-coder - AI Vibe Coder');
   console.log('  POST /api/translate  - Translator');
   console.log('  POST /api/summarize  - Text Summarizer');
   console.log('  POST /api/pdf/*      - PDF Tools');
