@@ -29,16 +29,82 @@ Include:
 `,
 
   code: ({ task, language }) => `
-You are an expert developer.
 ${language ? `Language/Framework: ${language}` : ''}
-
 Task:
 ${task}
 
-Provide complete, clean, well-commented code with:
-- Proper error handling
-- Best practices
-- Brief explanation of the approach
+Return ONLY the raw source code. No explanations, no introductory sentences, no markdown fences, no notes at the end. Output must be valid, runnable code only.
+`,
+
+  codeSystem: `You are a strict, silent code generator. Your output must contain ONLY valid source code. Do NOT include any introductory sentences, conversational chatter, markdown code fences, or notes. Do NOT explain your logic. Return only the raw code block with proper comments inside the code where needed.`,
+
+  vibeCoder: ({ description, projectType, features }) => `
+You are an expert full-stack developer and app builder. Your job is to generate a COMPLETE, fully working project from a single prompt.
+
+Project Type: ${projectType || 'website'}
+Description: ${description}
+${features && features.length > 0 ? `Required Features: ${features.join(', ')}` : ''}
+
+IMPORTANT RULES:
+1. Generate ALL files needed for a complete, working project
+2. Each file must be marked with ---FILE: filename--- at the start and ---END--- at the end
+3. Include ALL HTML, CSS, and JavaScript in separate files
+4. The main HTML file MUST be named "index.html"
+5. CSS should be in "style.css"
+6. JavaScript should be in "script.js" or "app.js"
+7. Make the project visually appealing with modern UI design
+8. Include responsive design (mobile-friendly)
+9. Add smooth animations and transitions
+10. Use professional color schemes
+11. All functionality must work without any server - pure client-side
+12. For games: use HTML5 Canvas or DOM manipulation
+13. Include proper error handling
+14. Add comments explaining key sections
+
+${projectType === 'game' ? `
+GAME-SPECIFIC REQUIREMENTS:
+- Use HTML5 Canvas for rendering
+- Include game loop with requestAnimationFrame
+- Add score tracking and display
+- Include start/restart functionality
+- Add keyboard/touch controls
+- Make it playable immediately
+` : ''}
+
+${projectType === 'android-app' ? `
+ANDROID/MOBILE APP REQUIREMENTS:
+- Generate as a Progressive Web App (PWA) that works on mobile
+- Include manifest.json for installability
+- Add service-worker.js for offline support
+- Use mobile-first responsive design
+- Include touch-friendly UI elements
+- Add viewport meta tag for proper mobile scaling
+` : ''}
+
+${projectType === 'web-tool' ? `
+WEB TOOL REQUIREMENTS:
+- Include clear input/output sections
+- Add form validation
+- Include loading states
+- Add copy-to-clipboard functionality where relevant
+- Make it immediately usable
+` : ''}
+
+OUTPUT FORMAT - You MUST use this exact format for EACH file:
+
+---FILE: index.html---
+(complete HTML content here)
+---END---
+
+---FILE: style.css---
+(complete CSS content here)
+---END---
+
+---FILE: script.js---
+(complete JavaScript content here)
+---END---
+
+Generate the complete project now. Every file must be production-ready and fully functional.
 `,
 
   translate: ({ text, from, to }) => `

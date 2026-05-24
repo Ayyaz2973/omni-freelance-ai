@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Vibe Coder - OmniFreelance AI</title>
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    .vibe-builder { display: flex; flex-direction: column; gap: 20px; }
+
+    .project-type-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .type-card {
+      background: var(--bg-input);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .type-card:hover { border-color: var(--primary); transform: translateY(-2px); }
+    .type-card.selected { border-color: var(--secondary); background: rgba(0, 206, 201, 0.1); }
+    .type-card .type-icon { font-size: 2rem; margin-bottom: 8px; }
+    .type-card .type-name { font-size: 0.9rem; font-weight: 600; }
+    .type-card .type-desc { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+
+    .features-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .feature-chip {
+      padding: 6px 14px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      user-select: none;
+    }
+
+    .feature-chip:hover { border-color: var(--primary); }
+    .feature-chip.selected { background: var(--primary); color: white; border-color: var(--primary); }
+
+    .preview-container {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: none;
+    }
+
+    .preview-container.active { display: block; }
+
+    .preview-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 16px;
+      background: var(--bg-input);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .preview-header h4 { font-size: 0.85rem; color: var(--text-muted); }
+
+    .preview-tabs { display: flex; gap: 4px; }
+
+    .preview-tab {
+      padding: 4px 12px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .preview-tab:hover, .preview-tab.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .preview-frame {
+      width: 100%;
+      height: 500px;
+      border: none;
+      background: white;
+    }
+
+    .files-panel {
+      display: none;
+      max-height: 500px;
+      overflow-y: auto;
+    }
+
+    .files-panel.active { display: block; }
+
+    .file-item {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .file-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 16px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .file-item-header:hover { background: rgba(108, 92, 231, 0.1); }
+
+    .file-item-header .file-name {
+      font-family: 'Courier New', monospace;
+      font-size: 0.85rem;
+      color: var(--secondary);
+    }
+
+    .file-item-header .file-toggle {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+
+    .file-item-content {
+      display: none;
+      padding: 0 16px 16px;
+    }
+
+    .file-item-content.open { display: block; }
+
+    .file-item-content pre {
+      background: var(--bg-dark);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      overflow-x: auto;
+      font-size: 0.8rem;
+      line-height: 1.5;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .action-bar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 12px 16px;
+      background: var(--bg-input);
+      border-top: 1px solid var(--border);
+    }
+
+    .progress-bar {
+      display: none;
+      margin: 16px 0;
+    }
+
+    .progress-bar.active { display: block; }
+
+    .progress-track {
+      width: 100%;
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      border-radius: 2px;
+      animation: progressPulse 2s ease-in-out infinite;
+      width: 30%;
+    }
+
+    @keyframes progressPulse {
+      0%, 100% { width: 30%; margin-left: 0; }
+      50% { width: 60%; margin-left: 20%; }
+    }
+
+    .progress-text {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 8px;
+      text-align: center;
+    }
+
+    .history-section { margin-top: 30px; }
+
+    .history-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .history-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .history-card:hover { border-color: var(--primary); transform: translateY(-1px); }
+    .history-card .hist-type { font-size: 0.7rem; color: var(--secondary); text-transform: uppercase; letter-spacing: 1px; }
+    .history-card .hist-desc { font-size: 0.85rem; margin: 6px 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .history-card .hist-date { font-size: 0.7rem; color: var(--text-muted); }
+    .history-card .hist-files { font-size: 0.7rem; color: var(--text-muted); margin-top: 4px; }
+
+    .prompt-textarea {
+      min-height: 100px;
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+
+    .examples-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .example-chip {
+      padding: 6px 12px;
+      background: rgba(108, 92, 231, 0.15);
+      border: 1px solid rgba(108, 92, 231, 0.3);
+      border-radius: 20px;
+      color: var(--text);
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .example-chip:hover { background: var(--primary); color: white; }
+  </style>
+</head>
+<body>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <h1>OmniFreelance AI</h1>
+    <p>Local AI Freelancing Assistant</p>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="/"><span class="icon">&#127968;</span> Dashboard</a>
+    <a href="/pages/chat.html"><span class="icon">&#128172;</span> AI Chat</a>
+    <a href="/pages/proposal.html"><span class="icon">&#128221;</span> Proposal Generator</a>
+    <a href="/pages/seo.html"><span class="icon">&#128200;</span> SEO Writer</a>
+    <a href="/pages/vibe-coder.html" class="active"><span class="icon">&#127775;</span> AI Vibe Coder</a>
+    <a href="/pages/code.html"><span class="icon">&#128187;</span> Code Assistant</a>
+    <a href="/pages/summarize.html"><span class="icon">&#128203;</span> Summarizer</a>
+    <a href="/pages/email.html"><span class="icon">&#128232;</span> Email Generator</a>
+    <a href="/pages/translate.html"><span class="icon">&#127760;</span> Translator</a>
+    <a href="/pages/pdf.html"><span class="icon">&#128196;</span> PDF Tools</a>
+    <a href="/pages/voice.html"><span class="icon">&#127908;</span> Voice AI</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="status-indicator">
+      <span class="status-dot" id="statusDot"></span>
+      <span id="statusText">Checking Ollama...</span>
+    </div>
+  </div>
+</aside>
+
+<div class="main-content">
+  <nav class="navbar">
+    <button class="menu-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">&#9776;</button>
+    <h2>AI Vibe Coder</h2>
+    <select class="model-select" id="modelSelect">
+      <option value="deepseek-coder">deepseek-coder</option>
+      <option value="llama3">llama3</option>
+      <option value="mistral">mistral</option>
+    </select>
+  </nav>
+
+  <div class="page-content">
+    <div class="vibe-builder">
+      <div class="tool-header">
+        <h2>&#127775; AI Vibe Coder</h2>
+        <p>Describe your idea and get a complete, working project — websites, web tools, games, or mobile apps — built instantly by AI.</p>
+      </div>
+
+      <!-- Step 1: Project Type -->
+      <div class="form-group">
+        <label>Choose Project Type</label>
+        <div class="project-type-grid">
+          <div class="type-card selected" onclick="selectType('website', this)">
+            <div class="type-icon">&#127760;</div>
+            <div class="type-name">Website</div>
+            <div class="type-desc">Landing pages, portfolios, blogs</div>
+          </div>
+          <div class="type-card" onclick="selectType('web-tool', this)">
+            <div class="type-icon">&#128295;</div>
+            <div class="type-name">Web Tool</div>
+            <div class="type-desc">Calculators, converters, editors</div>
+          </div>
+          <div class="type-card" onclick="selectType('game', this)">
+            <div class="type-icon">&#127918;</div>
+            <div class="type-name">Game</div>
+            <div class="type-desc">HTML5 Canvas & browser games</div>
+          </div>
+          <div class="type-card" onclick="selectType('android-app', this)">
+            <div class="type-icon">&#128241;</div>
+            <div class="type-name">Mobile App</div>
+            <div class="type-desc">PWA for Android & iOS</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: Describe -->
+      <div class="form-group">
+        <label for="projectDesc">Describe what you want to build</label>
+        <textarea id="projectDesc" class="prompt-textarea" placeholder="e.g., Build a modern portfolio website with dark theme, animated hero section, project gallery with filters, contact form, and smooth scroll navigation..." rows="5"></textarea>
+        <div class="examples-row">
+          <span class="example-chip" onclick="useExample('Build a Snake game with score tracking, increasing speed, and neon glow effects')">Snake Game</span>
+          <span class="example-chip" onclick="useExample('Create a modern weather dashboard with city search, 5-day forecast cards, and animated weather icons')">Weather App</span>
+          <span class="example-chip" onclick="useExample('Build a Pomodoro timer with customizable work/break times, progress ring animation, and notification sounds')">Pomodoro Timer</span>
+          <span class="example-chip" onclick="useExample('Create a markdown editor with live preview, syntax highlighting, and export to HTML')">Markdown Editor</span>
+          <span class="example-chip" onclick="useExample('Build a personal finance tracker with income/expense categories, charts, and monthly summary')">Finance Tracker</span>
+          <span class="example-chip" onclick="useExample('Create a quiz app with multiple categories, timer, score tracking, and leaderboard')">Quiz App</span>
+        </div>
+      </div>
+
+      <!-- Step 3: Features -->
+      <div class="form-group">
+        <label>Select Features (optional)</label>
+        <div class="features-grid">
+          <span class="feature-chip" onclick="toggleFeature('Dark Theme', this)">Dark Theme</span>
+          <span class="feature-chip" onclick="toggleFeature('Responsive Design', this)">Responsive</span>
+          <span class="feature-chip" onclick="toggleFeature('Animations', this)">Animations</span>
+          <span class="feature-chip" onclick="toggleFeature('Local Storage', this)">Local Storage</span>
+          <span class="feature-chip" onclick="toggleFeature('Touch Controls', this)">Touch Controls</span>
+          <span class="feature-chip" onclick="toggleFeature('Sound Effects', this)">Sound Effects</span>
+          <span class="feature-chip" onclick="toggleFeature('Charts/Graphs', this)">Charts</span>
+          <span class="feature-chip" onclick="toggleFeature('Print Friendly', this)">Print Friendly</span>
+          <span class="feature-chip" onclick="toggleFeature('Export/Download', this)">Export</span>
+          <span class="feature-chip" onclick="toggleFeature('Drag & Drop', this)">Drag & Drop</span>
+        </div>
+      </div>
+
+      <!-- Generate -->
+      <div class="btn-group">
+        <button class="btn btn-primary" id="genBtn" onclick="generateProject()">&#127775; Build My Project</button>
+        <button class="btn btn-secondary" onclick="resetBuilder()">Reset</button>
+      </div>
+
+      <!-- Progress -->
+      <div class="progress-bar" id="progressBar">
+        <div class="progress-track">
+          <div class="progress-fill"></div>
+        </div>
+        <div class="progress-text" id="progressText">AI is building your project... This may take a minute.</div>
+      </div>
+
+      <!-- Preview -->
+      <div class="preview-container" id="previewContainer">
+        <div class="preview-header">
+          <h4>Project Output</h4>
+          <div class="preview-tabs">
+            <button class="preview-tab active" onclick="showPreviewTab('preview', this)">Live Preview</button>
+            <button class="preview-tab" onclick="showPreviewTab('files', this)">Files</button>
+          </div>
+        </div>
+        <iframe class="preview-frame" id="previewFrame" sandbox="allow-scripts allow-same-origin"></iframe>
+        <div class="files-panel" id="filesPanel"></div>
+        <div class="action-bar" id="actionBar">
+          <button class="btn btn-primary" onclick="downloadProject()" style="padding: 8px 16px; font-size: 0.85rem;">&#128229; Download ZIP</button>
+          <button class="btn btn-secondary" onclick="openPreviewFullscreen()" style="padding: 8px 16px; font-size: 0.85rem;">&#128194; Open Full Preview</button>
+          <button class="btn btn-secondary" onclick="copyAllCode()" style="padding: 8px 16px; font-size: 0.85rem;">&#128203; Copy All Code</button>
+        </div>
+      </div>
+
+      <!-- History -->
+      <div class="history-section" id="historySection">
+        <h3>Recent Projects</h3>
+        <div class="history-grid" id="historyGrid"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="../app.js"></script>
+<script>
+let currentType = 'website';
+let selectedFeatures = [];
+let currentProjectId = null;
+let currentFiles = [];
+
+function selectType(type, el) {
+  currentType = type;
+  document.querySelectorAll('.type-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function toggleFeature(feature, el) {
+  const idx = selectedFeatures.indexOf(feature);
+  if (idx > -1) {
+    selectedFeatures.splice(idx, 1);
+    el.classList.remove('selected');
+  } else {
+    selectedFeatures.push(feature);
+    el.classList.add('selected');
+  }
+}
+
+function useExample(text) {
+  document.getElementById('projectDesc').value = text;
+  document.getElementById('projectDesc').focus();
+}
+
+async function generateProject() {
+  const description = document.getElementById('projectDesc').value.trim();
+  if (!description) return showToast('Please describe what you want to build', 'error');
+
+  document.getElementById('genBtn').disabled = true;
+  document.getElementById('progressBar').classList.add('active');
+  document.getElementById('previewContainer').classList.remove('active');
+
+  try {
+    const res = await fetch('/api/vibe-coder/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        description,
+        projectType: currentType,
+        features: selectedFeatures
+      })
+    });
+
+    const data = await res.json();
+
+    if (data.status === 'error') {
+      showToast(data.data || data.message || 'Generation failed', 'error');
+      return;
+    }
+
+    const result = data.data;
+    currentProjectId = result.projectId;
+    currentFiles = result.files;
+
+    renderPreview(result.projectId);
+    renderFiles(result.files);
+    document.getElementById('previewContainer').classList.add('active');
+    showToast('Project built successfully!', 'success');
+    loadHistory();
+  } catch (e) {
+    showToast('Failed to generate project: ' + e.message, 'error');
+  } finally {
+    document.getElementById('genBtn').disabled = false;
+    document.getElementById('progressBar').classList.remove('active');
+  }
+}
+
+function renderPreview(projectId) {
+  const frame = document.getElementById('previewFrame');
+  frame.src = '/api/vibe-coder/preview/' + projectId;
+}
+
+function renderFiles(files) {
+  const panel = document.getElementById('filesPanel');
+  panel.innerHTML = files.map((f, i) => `
+    <div class="file-item">
+      <div class="file-item-header" onclick="toggleFile(${i})">
+        <span class="file-name">${f.filename}</span>
+        <span class="file-toggle" id="toggle-${i}">&#9654;</span>
+      </div>
+      <div class="file-item-content" id="file-${i}">
+        <pre><code>${escapeHtml(f.content)}</code></pre>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleFile(idx) {
+  const content = document.getElementById('file-' + idx);
+  const toggle = document.getElementById('toggle-' + idx);
+  content.classList.toggle('open');
+  toggle.innerHTML = content.classList.contains('open') ? '&#9660;' : '&#9654;';
+}
+
+function showPreviewTab(tab, btn) {
+  document.querySelectorAll('.preview-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+
+  const frame = document.getElementById('previewFrame');
+  const panel = document.getElementById('filesPanel');
+
+  if (tab === 'preview') {
+    frame.style.display = 'block';
+    panel.classList.remove('active');
+  } else {
+    frame.style.display = 'none';
+    panel.classList.add('active');
+  }
+}
+
+function downloadProject() {
+  if (!currentProjectId) return showToast('No project to download', 'error');
+  window.open('/api/vibe-coder/download/' + currentProjectId, '_blank');
+}
+
+function openPreviewFullscreen() {
+  if (!currentProjectId) return showToast('No project to preview', 'error');
+  window.open('/api/vibe-coder/preview/' + currentProjectId, '_blank');
+}
+
+function copyAllCode() {
+  if (!currentFiles.length) return showToast('No files to copy', 'error');
+  const allCode = currentFiles.map(f => `// === ${f.filename} ===\n${f.content}`).join('\n\n');
+  navigator.clipboard.writeText(allCode).then(() => {
+    showToast('All code copied to clipboard!', 'success');
+  }).catch(() => {
+    showToast('Failed to copy', 'error');
+  });
+}
+
+function resetBuilder() {
+  document.getElementById('projectDesc').value = '';
+  selectedFeatures = [];
+  document.querySelectorAll('.feature-chip').forEach(c => c.classList.remove('selected'));
+  document.getElementById('previewContainer').classList.remove('active');
+  currentProjectId = null;
+  currentFiles = [];
+}
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+async function loadHistory() {
+  try {
+    const res = await fetch('/api/vibe-coder/list');
+    const data = await res.json();
+    const projects = data.data ? data.data.projects : [];
+
+    const grid = document.getElementById('historyGrid');
+    if (!projects || projects.length === 0) {
+      grid.innerHTML = '<p style="color: var(--text-muted); font-size: 0.85rem;">No projects yet. Build your first one above!</p>';
+      return;
+    }
+
+    grid.innerHTML = projects.slice(0, 6).map(p => `
+      <div class="history-card" onclick="loadProject('${p.id}')">
+        <div class="hist-type">${p.projectType}</div>
+        <div class="hist-desc">${escapeHtml(p.description)}</div>
+        <div class="hist-files">${p.files ? p.files.length : 0} files</div>
+        <div class="hist-date">${new Date(p.createdAt).toLocaleDateString()}</div>
+      </div>
+    `).join('');
+  } catch (e) {
+    // History loading is non-critical
+  }
+}
+
+async function loadProject(projectId) {
+  try {
+    const res = await fetch('/api/vibe-coder/project/' + projectId);
+    const data = await res.json();
+    const project = data.data;
+
+    currentProjectId = projectId;
+    currentFiles = project.files;
+
+    renderPreview(projectId);
+    renderFiles(project.files);
+    document.getElementById('previewContainer').classList.add('active');
+
+    document.getElementById('previewContainer').scrollIntoView({ behavior: 'smooth' });
+  } catch (e) {
+    showToast('Failed to load project', 'error');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadHistory();
+});
+</script>
+</body>
+</html>

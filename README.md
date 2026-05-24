@@ -7,6 +7,7 @@ A full localhost AI freelancing assistant powered by Ollama, Node.js, and Expres
 - **AI Chat** - Multi-model support, chat memory, English + Urdu, markdown, copy response
 - **Proposal Generator** - Fiverr, Upwork, cover letters, client replies, templates
 - **SEO Content Writer** - Blog generation, meta descriptions, titles, keywords, headings
+- **AI Vibe Coder** - Build complete websites, web tools, games, and mobile apps from a single prompt with live preview and ZIP download
 - **Code Assistant** - HTML, CSS, JS, React, Next.js, bug fixing, API generation
 - **Translator** - English, Urdu, Arabic, Roman Urdu
 - **PDF Tools** - Summary, text extraction, question answering
@@ -46,6 +47,7 @@ omni-freelance-ai/
 │   │   ├── proposal.js
 │   │   ├── seo.js
 │   │   ├── code.js
+│   │   ├── vibe-coder.js
 │   │   ├── translate.js
 │   │   ├── summarize.js
 │   │   ├── pdf.js
@@ -58,6 +60,7 @@ omni-freelance-ai/
 │   │   ├── proposalService.js
 │   │   ├── emailService.js
 │   │   ├── voiceService.js
+│   │   ├── vibeCoderService.js
 │   │   └── codeService.js
 │   ├── middleware/
 │   │   ├── upload.js
@@ -79,6 +82,7 @@ omni-freelance-ai/
 │       ├── chat.html
 │       ├── proposal.html
 │       ├── seo.html
+│       ├── vibe-coder.html
 │       ├── code.html
 │       ├── pdf.html
 │       └── voice.html

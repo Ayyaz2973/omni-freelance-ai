@@ -53,6 +53,24 @@ http://localhost:3000
 }
 ```
 
+### AI Vibe Coder
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/vibe-coder/generate` | Generate a complete project from a prompt |
+| GET | `/api/vibe-coder/project/:id` | Get project files by ID |
+| GET | `/api/vibe-coder/preview/:id` | Live HTML preview of a project |
+| GET | `/api/vibe-coder/download/:id` | Download project as ZIP |
+| GET | `/api/vibe-coder/list` | List all generated projects |
+
+**Body (POST /generate):**
+```json
+{
+  "description": "Build a Snake game with score tracking and neon effects",
+  "projectType": "game",
+  "features": ["Dark Theme", "Animations", "Sound Effects"]
+}
+```
+
 ### Code Assistant
 | Method | Endpoint | Description |
 |--------|----------|-------------|
